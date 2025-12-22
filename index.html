@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>"One-Eyed Mocking-Bird"</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #FFFEFA;
+      --ink: #1a1a1a;
+      --ink-light: #444;
+      --ink-faint: #888;
+      --accent: #8B0000;
+      --highlight: #FFF8DC;
+      --border: #ccc;
+      --shadow: rgba(0,0,0,0.1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--ink);
+      background: var(--paper);
+      padding: 0;
+    }
+    
+    header {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(to bottom, #f9f6f0, var(--paper));
+    }
+    
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    
+    nav {
+      position: sticky;
+      top: 0;
+      background: var(--paper);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 2rem;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+    }
+    
+    nav a {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-light);
+      text-decoration: none;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    nav a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    section {
+      margin-bottom: 3rem;
+    }
+    
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.75rem;
+      color: var(--ink);
+    }
+    
+    p {
+      margin-bottom: 1rem;
+      text-align: justify;
+      hyphens: auto;
+    }
+    
+    .layer {
+      border: 1px solid var(--border);
+      margin: 1rem 0;
+      background: #fff;
+    }
+    
+    .layer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: #f9f7f3;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .layer-header:hover {
+      background: #f5f2eb;
+    }
+    
+    .layer-title {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    
+    .layer-toggle {
+      font-size: 1.2rem;
+      color: var(--ink-light);
+      transition: transform 0.2s;
+    }
+    
+    .layer.open .layer-toggle {
+      transform: rotate(180deg);
+    }
+    
+    .layer-content {
+      display: none;
+      padding: 1rem;
+    }
+    
+    .layer.open .layer-content {
+      display: block;
+    }
+    
+    .layer .layer {
+      margin: 0.75rem 0;
+      border-color: #ddd;
+    }
+    
+    .layer .layer .layer-header {
+      background: #fdfcfa;
+      padding: 0.6rem 0.9rem;
+    }
+    
+    .layer .layer .layer-title {
+      font-size: 0.95rem;
+    }
+    
+    .term {
+      color: var(--accent);
+      border-bottom: 1px dotted var(--accent);
+      cursor: help;
+      position: relative;
+    }
+    
+    .term:hover {
+      background: var(--highlight);
+    }
+    
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 40px var(--shadow);
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 1000;
+      padding: 1.5rem;
+    }
+    
+    .popup.active {
+      display: block;
+    }
+    
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .popup-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    
+    .popup-close {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--ink-faint);
+      line-height: 1;
+    }
+    
+    .popup-close:hover {
+      color: var(--ink);
+    }
+    
+    .popup-category {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-faint);
+      margin-bottom: 0.25rem;
+    }
+    
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 999;
+    }
+    
+    .overlay.active {
+      display: block;
+    }
+    
+    .diagram {
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+    
+    .diagram svg {
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .diagram-caption {
+      font-size: 0.85rem;
+      font-style: italic;
+      text-align: center;
+      color: var(--ink-light);
+      margin-top: 1rem;
+    }
+    
+    blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1.25rem;
+      margin: 1rem 0;
+      background: #fdfcfa;
+      font-style: italic;
+    }
+    
+    blockquote cite {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--ink-faint);
+      margin-top: 0.5rem;
+      font-style: normal;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    
+    th {
+      background: #f9f7f3;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+    }
+    
+    ul, ol {
+      margin: 0.75rem 0 1rem 1.5rem;
+    }
+    
+    li {
+      margin-bottom: 0.4rem;
+    }
+    
+    .parallel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 1rem 0;
+    }
+    
+    @media (max-width: 600px) {
+      .parallel {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .parallel-col {
+      border: 1px solid var(--border);
+      padding: 1rem;
+      background: #fff;
+    }
+    
+    .parallel-col h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    
+    .note {
+      background: #fffbeb;
+      border: 1px solid #f0e6c0;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    
+    .note-label {
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8B6914;
+      margin-bottom: 0.25rem;
+    }
+    
+    .asymmetry {
+      background: #f0f7ff;
+      border: 1px solid #c0d8f0;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    
+    .asymmetry-label {
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #1a5490;
+      margin-bottom: 0.25rem;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--ink-faint);
+      font-size: 0.85rem;
+    }
+    
+    footer a {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>"One-Eyed Mocking-Bird"</h1>
+</header>
+
+<nav>
+  <a href="#synopsis">Synopsis</a>
+  <a href="#master-diagram">Master Diagram</a>
+  <a href="#structure">Structure</a>
+  <a href="#theology">Theology</a>
+  <a href="#mechanism">Mechanism</a>
+  <a href="#paradox">Paradox</a>
+  <a href="#emblem">Emblem</a>
+  <a href="#characters">Characters</a>
+  <a href="#glossary">Glossary</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SYNOPSIS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<section id="synopsis">
+  <h2>Synopsis</h2>
+  
+  <p><span class="term" data-id="tobias">Tobias Lamb</span>, a harsh and ugly scientist "held in high esteem" yet also in "puzzled esteem" by his colleagues, conducts an experiment. He places a microscopic <span class="term" data-id="realm">"realm"</span> of <span class="term" data-id="jelly">reactive molecular jelly</span> inside a rifle bullet and fires it at a cliff four kilometers across the valley. The bullet's flight time: approximately two and a half seconds.</p>
+  
+  <p>For the <span class="term" data-id="short-aeon">short-aeon nation</span> inside the bullet, those two and a half seconds are equivalent to roughly eight thousand years. During that time, they must wake to consciousness, evolve, develop science and technology, invent a space drive, and navigate the bullet back to its origin—or perish against the cliff.</p>
+  
+  <p>The experiment succeeds. The bullet returns—in <span class="term" data-id="unelapsed">unelapsed time</span>—and shoots Tobias through the right eye, killing him. A coroner appears and examines the body. Then dead Tobias speaks, explaining that his death is "a valid event in unelapsed time." The coroner vanishes. Tobias, it turns out, has only a black eye—a "shiner." The practical result: a nation of "consummate atomic-speed invention" that can solve any problem.</p>
+  
+  <p>The <span class="term" data-id="mockingbird">mockingbird</span> Tobias was aiming at also loses an eye in the fly-by—but unlike Tobias's wound, the bird's loss is permanent. Where before it sang "imperfectly"—"too saccharine to mock"—it now sings with "inimitable mockery and arrogance" and "burning belief."</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MASTER DIAGRAM -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<section id="master-diagram">
+  <h2>Master Diagram: Complete System</h2>
+  
+  <p>How all elements interact: theological source, narrator chain, activation mechanism, paradox, emblematic transformation. Click any box for details.</p>
+  
+  <div class="diagram">
+    <svg viewBox="0 0 700 620" width="700" height="620">
+      <style>
+        .master-title { font-family: 'EB Garamond', Georgia, serif; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; fill: #1a1a1a; }
+        .master-title-light { font-family: 'EB Garamond', Georgia, serif; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; fill: #fff; }
+        .master-node { font-family: 'EB Garamond', Georgia, serif; font-size: 10px; fill: #1a1a1a; }
+        .master-node-light { font-family: 'EB Garamond', Georgia, serif; font-size: 10px; fill: #fff; }
+        .master-node-small { font-family: 'EB Garamond', Georgia, serif; font-size: 8px; fill: #1a1a1a; }
+        .master-node-small-light { font-family: 'EB Garamond', Georgia, serif; font-size: 8px; fill: #fff; }
+        .master-node-small-dim { font-family: 'EB Garamond', Georgia, serif; font-size: 8px; fill: #aaa; }
+        .master-label { font-family: 'EB Garamond', Georgia, serif; font-size: 8px; font-style: italic; fill: #555; }
+        .master-section { font-family: 'EB Garamond', Georgia, serif; font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase; fill: #888; }
+        .clickable { cursor: pointer; pointer-events: all; }
+        .clickable:hover rect { stroke-width: 2; }
+        .clickable text { pointer-events: none; }
+      </style>
+      
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- SECTION LABELS -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      
+      <text x="100" y="18" text-anchor="middle" class="master-section">Theological Source</text>
+      <text x="350" y="18" text-anchor="middle" class="master-section">Narrator Chain</text>
+      <text x="600" y="18" text-anchor="middle" class="master-section">Activation Loop</text>
+      
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- LEFT COLUMN: THEOLOGICAL SOURCE -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      
+      <!-- Cainite Theology box -->
+      <g class="clickable" data-popup="cainite-theology">
+        <rect x="20" y="30" width="160" height="120" fill="#f9f7f3" stroke="#1a1a1a" stroke-width="1"/>
+        <text x="100" y="50" text-anchor="middle" class="master-title">Cainite Theology</text>
+        <text x="30" y="70" class="master-node-small">• Twice-fallen (ate tree</text>
+        <text x="35" y="82" class="master-node-small">of knowledge twice)</text>
+        <text x="30" y="98" class="master-node-small">• Left-handed fraternity</text>
+        <text x="30" y="114" class="master-node-small">• Goatish, not sheepish</text>
+        <text x="30" y="130" class="master-node-small">• "Only early inventors"</text>
+        <text x="30" y="146" class="master-node-small">• Genesis 4:20-22</text>
+      </g>
+      
+      <!-- Arrow: Theology → Cainite Voyage -->
+      <line x1="100" y1="150" x2="100" y2="175" stroke="#1a1a1a" stroke-width="1"/>
+      <polygon points="100,180 96,172 104,172" fill="#1a1a1a"/>
+      <text x="110" y="168" class="master-label">generates</text>
+      
+      <!-- Cainite Voyage box -->
+      <g class="clickable" data-popup="cainite-voyage">
+        <rect x="20" y="185" width="160" height="90" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+        <text x="100" y="205" text-anchor="middle" class="master-title">Cainite Voyage</text>
+        <text x="30" y="225" class="master-node-small">Bronze sphere, sealed</text>
+        <text x="30" y="240" class="master-node-small">~8,000 years elapsed</text>
+        <text x="30" y="255" class="master-node-small">Invented propulsion,</text>
+        <text x="30" y="267" class="master-node-small">navigation, soft-landing</text>
+      </g>
+      
+      <!-- Parallel arrow to Bullet Voyage -->
+      <line x1="100" y1="275" x2="100" y2="300" stroke="#1a1a1a" stroke-width="1" stroke-dasharray="4,2"/>
+      <text x="110" y="293" class="master-label">parallels</text>
+      
+      <!-- Bullet Voyage box -->
+      <g class="clickable" data-popup="bullet-voyage">
+        <rect x="20" y="305" width="160" height="90" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+        <text x="100" y="325" text-anchor="middle" class="master-title">Bullet Voyage</text>
+        <text x="30" y="345" class="master-node-small">Rifle bullet, 4km flight</text>
+        <text x="30" y="360" class="master-node-small">~2.5 sec = ~8,000 micro-yrs</text>
+        <text x="30" y="375" class="master-node-small">Must invent space drive,</text>
+        <text x="30" y="387" class="master-node-small">navigate home or perish</text>
+      </g>
+      
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- CENTER COLUMN: NARRATOR CHAIN -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      
+      <!-- Something Larger -->
+      <g class="clickable" data-popup="something-larger">
+        <rect x="270" y="30" width="160" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+        <text x="350" y="55" text-anchor="middle" class="master-node">Something Larger</text>
+      </g>
+      
+      <!-- Arrow down -->
+      <line x1="350" y1="70" x2="350" y2="95" stroke="#1a1a1a" stroke-width="1"/>
+      <polygon points="350,100 346,92 354,92" fill="#1a1a1a"/>
+      <text x="360" y="88" class="master-label">motivates</text>
+      
+      <!-- Tobias -->
+      <g class="clickable" data-popup="tobias">
+        <rect x="270" y="105" width="160" height="40" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1"/>
+        <text x="350" y="130" text-anchor="middle" class="master-node-light">Tobias Lamb</text>
+      </g>
+      
+      <!-- Arrow from Cainite Voyage to Tobias (racial memory) -->
+      <path d="M 180 230 Q 225 230 225 125 L 265 125" fill="none" stroke="#1a1a1a" stroke-width="1" stroke-dasharray="3,2"/>
+      <polygon points="270,125 262,121 262,129" fill="#1a1a1a"/>
+      <text x="200" y="175" class="master-label">"racial memory"</text>
+      
+      <!-- Arrow down with myth transmission -->
+      <line x1="350" y1="145" x2="350" y2="170" stroke="#1a1a1a" stroke-width="1"/>
+      <polygon points="350,175 346,167 354,167" fill="#1a1a1a"/>
+      <text x="360" y="163" class="master-label">narrates myth into</text>
+      
+      <!-- Transmission Moment callout -->
+      <g class="clickable" data-popup="transmission">
+        <rect x="255" y="180" width="190" height="55" fill="#fffbeb" stroke="#d4a" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="350" y="197" text-anchor="middle" class="master-node-small" font-weight="600">"Principality and Nation, in you go!</text>
+        <text x="350" y="210" text-anchor="middle" class="master-node-small">Your history and your destiny</text>
+        <text x="350" y="223" text-anchor="middle" class="master-node-small">begin right now."</text>
+      </g>
+      
+      <!-- Arrow down -->
+      <line x1="350" y1="235" x2="350" y2="260" stroke="#1a1a1a" stroke-width="1"/>
+      <polygon points="350,265 346,257 354,257" fill="#1a1a1a"/>
+      
+      <!-- Micro-Nation -->
+      <g class="clickable" data-popup="micro-nation">
+        <rect x="270" y="270" width="160" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+        <text x="350" y="295" text-anchor="middle" class="master-node">Micro-Nation</text>
+      </g>
+      
+      <!-- Arrow from Bullet Voyage to Micro-Nation -->
+      <line x1="180" y1="350" x2="265" y2="290" stroke="#1a1a1a" stroke-width="1" stroke-dasharray="3,2"/>
+      <polygon points="270,287 261,286 264,295" fill="#1a1a1a"/>
+      <text x="205" y="310" class="master-label">is the</text>
+      
+      <!-- Connection to Activation Loop -->
+      <line x1="430" y1="290" x2="480" y2="290" stroke="#1a1a1a" stroke-width="1"/>
+      <polygon points="485,290 477,286 477,294" fill="#1a1a1a"/>
+      <text x="455" y="283" class="master-label">activates</text>
+      
+      <!-- Arrow down from Micro-Nation -->
+      <line x1="350" y1="310" x2="350" y2="335" stroke="#1a1a1a" stroke-width="1"/>
+      <polygon points="350,340 346,332 354,332" fill="#1a1a1a"/>
+      <text x="360" y="328" class="master-label">produces</text>
+      
+      <!-- Unelapsed Time output -->
+      <g class="clickable" data-popup="unelapsed">
+        <rect x="270" y="345" width="160" height="50" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1"/>
+        <text x="350" y="365" text-anchor="middle" class="master-node-light">Unelapsed Time</text>
+        <text x="350" y="380" text-anchor="middle" class="master-node-small-dim">(paradox as resource)</text>
+      </g>
+      
+      <!-- Arrow down -->
+      <line x1="350" y1="395" x2="350" y2="420" stroke="#1a1a1a" stroke-width="1"/>
+      <polygon points="350,425 346,417 354,417" fill="#1a1a1a"/>
+      <text x="360" y="413" class="master-label">enables</text>
+      
+      <!-- Instant Problem-Solving -->
+      <g class="clickable" data-popup="problem-solving">
+        <rect x="270" y="430" width="160" height="35" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+        <text x="350" y="452" text-anchor="middle" class="master-node-small">"Set it any problem and it will solve it"</text>
+      </g>
+      
+      <!-- Arrow down to Students -->
+      <line x1="350" y1="465" x2="350" y2="490" stroke="#1a1a1a" stroke-width="1"/>
+      <polygon points="350,495 346,487 354,487" fill="#1a1a1a"/>
+      <text x="360" y="483" class="master-label">inherited by</text>
+      
+      <!-- Students -->
+      <g class="clickable" data-popup="students">
+        <rect x="270" y="500" width="160" height="50" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+        <text x="350" y="520" text-anchor="middle" class="master-node">Odd-Lot Students</text>
+        <text x="350" y="535" text-anchor="middle" class="master-node-small">(continue the method)</text>
+      </g>
+      
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- RIGHT COLUMN: ACTIVATION LOOP -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      
+      <!-- Loop container -->
+      <g class="clickable" data-popup="activation-loop">
+        <rect x="490" y="230" width="195" height="175" fill="rgba(255,255,255,0.01)" stroke="#1a1a1a" stroke-width="1" stroke-dasharray="4,2"/>
+        <text x="587" y="248" text-anchor="middle" class="master-title">Activation Loop</text>
+      
+        <!-- Heroic Narrative -->
+        <rect x="505" y="260" width="75" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="0.75"/>
+        <text x="542" y="277" text-anchor="middle" class="master-node-small">Heroic</text>
+        <text x="542" y="289" text-anchor="middle" class="master-node-small">Narrative</text>
+      
+        <!-- Arrow right -->
+        <line x1="580" y1="280" x2="593" y2="280" stroke="#1a1a1a" stroke-width="0.75"/>
+        <polygon points="598,280 592,277 592,283" fill="#1a1a1a"/>
+      
+        <!-- Belief -->
+        <rect x="603" y="260" width="70" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="0.75"/>
+        <text x="638" y="277" text-anchor="middle" class="master-node-small">Belief</text>
+        <text x="638" y="289" text-anchor="middle" class="master-node-small">(Motivation)</text>
+      
+        <!-- Arrow down -->
+        <line x1="638" y1="300" x2="638" y2="320" stroke="#1a1a1a" stroke-width="0.75"/>
+        <polygon points="638,325 635,319 641,319" fill="#1a1a1a"/>
+      
+        <!-- Invention -->
+        <rect x="603" y="330" width="70" height="40" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="0.75"/>
+        <text x="638" y="347" text-anchor="middle" class="master-node-small-light">Invention</text>
+        <text x="638" y="359" text-anchor="middle" class="master-node-small-light">(Action)</text>
+      
+        <!-- Arrow left -->
+        <line x1="603" y1="350" x2="590" y2="350" stroke="#1a1a1a" stroke-width="0.75"/>
+        <polygon points="585,350 591,347 591,353" fill="#1a1a1a"/>
+      
+        <!-- Validates -->
+        <rect x="505" y="330" width="75" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="0.75"/>
+        <text x="542" y="347" text-anchor="middle" class="master-node-small">Validates</text>
+        <text x="542" y="359" text-anchor="middle" class="master-node-small">Narrative</text>
+      
+        <!-- Arrow up (completing loop) -->
+        <line x1="542" y1="330" x2="542" y2="305" stroke="#1a1a1a" stroke-width="0.75"/>
+        <polygon points="542,300 539,306 545,306" fill="#1a1a1a"/>
+      
+        <!-- Loop annotation -->
+        <text x="587" y="393" text-anchor="middle" class="master-label">"It is absolutely essential that</text>
+        <text x="587" y="403" text-anchor="middle" class="master-label">it believes it did them."</text>
+      </g>
+      
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- BOTTOM: EMBLEMATIC TRANSFORMATION -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      
+      <text x="350" y="570" text-anchor="middle" class="master-section">Emblematic Transformation</text>
+      
+      <!-- Mockery + Faith core -->
+      <g class="clickable" data-popup="mockery-faith">
+        <rect x="270" y="580" width="160" height="30" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1"/>
+        <text x="350" y="600" text-anchor="middle" class="master-node-small-light">MOCKERY + FAITH</text>
+      </g>
+      
+      <!-- Tobias transformation (left) -->
+      <g class="clickable" data-popup="tobias-transform">
+        <rect x="80" y="575" width="130" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="0.75"/>
+        <text x="145" y="592" text-anchor="middle" class="master-node-small" font-weight="600">Tobias</text>
+        <text x="145" y="605" text-anchor="middle" class="master-node-small">wound softens → speaks in death</text>
+      </g>
+      
+      <!-- Arrow to core -->
+      <line x1="210" y1="595" x2="265" y2="595" stroke="#1a1a1a" stroke-width="0.75"/>
+      <polygon points="270,595 262,592 262,598" fill="#1a1a1a"/>
+      
+      <!-- Mockingbird transformation (right) -->
+      <g class="clickable" data-popup="mockingbird-transform">
+        <rect x="490" y="575" width="130" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="0.75"/>
+        <text x="555" y="592" text-anchor="middle" class="master-node-small" font-weight="600">Mockingbird</text>
+        <text x="555" y="605" text-anchor="middle" class="master-node-small">wound persists → true mockery</text>
+      </g>
+      
+      <!-- Arrow from core -->
+      <line x1="430" y1="595" x2="485" y2="595" stroke="#1a1a1a" stroke-width="0.75"/>
+      <polygon points="490,595 482,592 482,598" fill="#1a1a1a"/>
+      
+      <!-- Arrow from Students to Mockingbird (mascot) -->
+      <path d="M 430 525 Q 520 525 520 570" fill="none" stroke="#1a1a1a" stroke-width="0.75" stroke-dasharray="3,2"/>
+      <polygon points="520,575 517,567 523,567" fill="#1a1a1a"/>
+      <text x="485" y="545" class="master-label">adopt as mascot</text>
+      
+      <!-- Micro-nations' own mythology (floating annotation) -->
+      <g class="clickable" data-popup="own-mythology">
+        <rect x="490" y="430" width="195" height="55" fill="#f0f7ff" stroke="#1a5490" stroke-width="0.75" stroke-dasharray="3,2"/>
+        <text x="587" y="448" text-anchor="middle" class="master-node-small" font-weight="600">Micro-Nations' Own Mythology</text>
+        <text x="587" y="462" text-anchor="middle" class="master-node-small">"The mythic configurations can not</text>
+        <text x="587" y="474" text-anchor="middle" class="master-node-small">even be conceived of in the geometry</text>
+        <text x="587" y="486" text-anchor="middle" class="master-node-small">of human myth. They are quite otherwise."</text>
+      </g>
+      
+      <!-- Arrow from Micro-Nation to own mythology -->
+      <path d="M 430 290 Q 460 290 460 455 L 485 455" fill="none" stroke="#1a5490" stroke-width="0.75" stroke-dasharray="3,2"/>
+      <polygon points="490,455 482,452 482,458" fill="#1a5490"/>
+      <text x="468" y="375" class="master-label" fill="#1a5490">possesses</text>
+      
+    </svg>
+    <div class="diagram-caption">Fig. 1. Master diagram. Click any box for details.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STRUCTURE: THE RECURSIVE CHAIN -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<section id="structure">
+  <h2>I. Structure: Recursive Chain</h2>
+  
+  <p>The story operates on nested levels of <span class="term" data-id="motivation">motivation through narrative</span>. Each level creates the conditions for invention by transmitting heroic myth to the level below.</p>
+  
+  <div class="layer open">
+    <div class="layer-header">
+      <span class="layer-title">The Narrator Chain</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      
+      <div class="diagram">
+        <svg viewBox="0 0 420 300" width="420" height="300">
+          <style>
+            .node { font-family: 'EB Garamond', Georgia, serif; font-size: 11px; }
+            .label { font-family: 'EB Garamond', Georgia, serif; font-size: 9px; fill: #444; }
+            .arrow-label { font-family: 'EB Garamond', Georgia, serif; font-size: 8px; font-style: italic; fill: #666; }
+          </style>
+          
+          <!-- Level 1: Something Larger -->
+          <rect x="130" y="10" width="140" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+          <text x="200" y="35" text-anchor="middle" class="node">Something Larger</text>
+          
+          <!-- Arrow down -->
+          <line x1="200" y1="50" x2="200" y2="75" stroke="#1a1a1a" stroke-width="1"/>
+          <polygon points="200,80 196,72 204,72" fill="#1a1a1a"/>
+          <text x="210" y="68" class="arrow-label">motivates</text>
+          
+          <!-- Level 2: Tobias -->
+          <rect x="130" y="85" width="140" height="40" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1"/>
+          <text x="200" y="110" text-anchor="middle" class="node" fill="#fff">Tobias Lamb</text>
+          
+          <!-- Arrow down with myth transmission -->
+          <line x1="200" y1="125" x2="200" y2="150" stroke="#1a1a1a" stroke-width="1"/>
+          <polygon points="200,155 196,147 204,147" fill="#1a1a1a"/>
+          <text x="210" y="143" class="arrow-label">narrates Cainite myth</text>
+          
+          <!-- Level 3: Micro-Nation -->
+          <rect x="130" y="160" width="140" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+          <text x="200" y="185" text-anchor="middle" class="node">Micro-Nation</text>
+          
+          <!-- Arrow down -->
+          <line x1="200" y1="200" x2="200" y2="225" stroke="#1a1a1a" stroke-width="1"/>
+          <polygon points="200,230 196,222 204,222" fill="#1a1a1a"/>
+          <text x="210" y="218" class="arrow-label">will motivate</text>
+          
+          <!-- Level 4: Students -->
+          <rect x="130" y="235" width="140" height="40" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+          <text x="200" y="260" text-anchor="middle" class="node">Odd-Lot Students</text>
+          
+          <!-- Side annotations -->
+          <text x="285" y="30" class="label">"Somebody larger tells me</text>
+          <text x="285" y="42" class="label">such narrations now and then."</text>
+          
+          <text x="285" y="100" class="label">"Principality and Nation, in you go!</text>
+          <text x="285" y="112" class="label">Your history and your destiny</text>
+          <text x="285" y="124" class="label">begin right now."</text>
+          
+          <text x="285" y="180" class="label">Becomes "a nation of</text>
+          <text x="285" y="192" class="label">consummate atomic-speed invention"</text>
+          
+          <text x="285" y="250" class="label">Adopt One-Eyed Mocking-Bird</text>
+          <text x="285" y="262" class="label">as mascot; analyze dream material</text>
+          <text x="285" y="274" class="label">from molecular-level entities</text>
+        </svg>
+        <div class="diagram-caption">Fig. 2. The narrator chain: each level transmits heroic narrative to motivate the level below.</div>
+      </div>
+      
+      <blockquote>
+        "Somebody larger tells me such narrations now and then. Yes, to motivate me, I suppose, as I motivate the small molecular smudges."
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+      
+      <p>The chain does not terminate. The closing: "those students who are now developing best ways to motivate and mythologize sub-microscopic smears to get maximum performance and invention from them." They are "an odd lot... working with small, left-handed orders that are more goatish than sheepish, that are very near to the grotesque heart of matter."</p>
+      
+      <div class="layer">
+        <div class="layer-header">
+          <span class="layer-title">The Transmission Moment</span>
+          <span class="layer-toggle">▼</span>
+        </div>
+        <div class="layer-content">
+          <p>Myth-transmission occurs when Tobias addresses the glob as he seals it into the bullet:</p>
+          
+          <blockquote>
+            "Principality and Nation, in you go! Your history and your destiny begin right now. This is the first instant of your Heroic Age. Be Heroic then, which is the same thing as being inventive."
+            <cite>— Tobias Lamb, to the micro-nation</cite>
+          </blockquote>
+          
+          <p>The Cainite voyage is not <em>analogous</em> to the experiment—it is <em>narrated into</em> the bullet as the micro-nation's origin myth. Their history begins with Tobias's declaration.</p>
+        </div>
+      </div>
+      
+      <div class="layer">
+        <div class="layer-header">
+          <span class="layer-title">The Micro-Nations' Own Mythology</span>
+          <span class="layer-toggle">▼</span>
+        </div>
+        <div class="layer-content">
+          <p>The closing reveals that micro-nations are not blank slates receiving Tobias's narrative. They have their own mythic structures:</p>
+          
+          <blockquote>
+            "They have accumulated and analyzed a frightening amount of dream material from molecular-level and smaller entities, and the dream material in those little worlds is absolutely grotesque. And the mythic configurations can not even be conceived of in the geometry of human myth. They are quite otherwise."
+            <cite>— Narrator</cite>
+          </blockquote>
+          
+          <p>Activation awakens something already present. The micro-nations have autonomous mythic lives that human geometry cannot contain.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">The Parallel Voyages</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <p>The micro-nation's flight recapitulates the <span class="term" data-id="cainite">Cainite space-ark's</span> voyage. Tobias presents this as his own ancestral history—transmitted to the realm as <em>their</em> founding myth.</p>
+      
+      <div class="parallel">
+        <div class="parallel-col">
+          <h4>Cainite Space-Ark</h4>
+          <ul>
+            <li><strong>Vessel:</strong> Bronze sphere, sealed</li>
+            <li><strong>Passengers:</strong> "A dozen of us"</li>
+            <li><strong>Pilots:</strong> "Two brothers, Jabelcain and Jubelcain. And their half-brother Tubalcain."</li>
+            <li><strong>Escape:</strong> "Set our bronze sphere as a cork in the throat of that erupting fountain" when "the fountains of the deep should burst open"</li>
+            <li><strong>Duration:</strong> "a little less than eight thousand years of elapsed time"</li>
+            <li><strong>Starting conditions:</strong> "We already had a city established on Earth, no mean city... We had metallurgy. We had been working bronze and iron for a full generation."</li>
+            <li><strong>Task:</strong> "to orient ourselves in space, to develop a propulsion power from nothing while traveling at something more than escape velocity in cramped quarters in the dark... a purpose and a philosophy, and a navigation to return to earth, and to soft-land on earth"</li>
+            <li><strong>Return:</strong> "Within the last several hundred years. When invention returned to the Earth, that was the space-ark homing back."</li>
+          </ul>
+        </div>
+        <div class="parallel-col">
+          <h4>Bullet Micro-Nation</h4>
+          <ul>
+            <li><strong>Vessel:</strong> Rifle bullet</li>
+            <li><strong>Passengers:</strong> "Principality and Nation" (thousands of individuals)</li>
+            <li><strong>Pilots:</strong> Unknown (tyranny implied)</li>
+            <li><strong>Escape:</strong> Fired at cliff 4 kilometers distant; "I do this for them"</li>
+            <li><strong>Duration:</strong> "about two and a half or three seconds" = ~8,000 micro-years</li>
+            <li><strong>Starting conditions:</strong> None—"They don't have an intelligence system sufficient to know when next a rifle will be shooting off"</li>
+            <li><strong>Task:</strong> "wake to consciousness, form local governments, expand to a limited universal government, develop science and technology... learn to navigate the bullet, avoid destruction against the cliff; and return it here in quest of their origin"</li>
+            <li><strong>Return:</strong> Instantaneous in macro-time (unelapsed time)</li>
+          </ul>
+        </div>
+      </div>
+      
+      <blockquote>
+        "There is a tight and almost total analogy between our old flight and the flight that I'll shoot off in just a moment."
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+      
+      <p>The ratio is explicit: "our eight thousand years was a very close equivalent to their two and a half seconds." This equivalence depends on "the order of size to be considered, direct cubical relations, inverse squares, angular velocity, and the relationship of tight-turning to elapsed time and to the pace of technology development."</p>
+      
+      <div class="note">
+        <div class="note-label">Note on Starting Conditions</div>
+        <p>Tobias acknowledges: "we had a better start than they have, but we may not have had as good an inclination and indoctrination." The micro-nation begins with nothing but receives superior motivation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- THEOLOGY: THE CAINITE INHERITANCE -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<section id="theology">
+  <h2>II. Theology: The Cainite Inheritance</h2>
+  
+  <p>The cosmology is not decorative. Tobias claims literal descent from <span class="term" data-id="cain">Cain</span>, and the theological particulars explain <em>why the Cainites are the only early inventors</em>.</p>
+  
+  <div class="layer open">
+    <div class="layer-header">
+      <span class="layer-title">The Left-Handed Brotherhood</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <p>Tobias identifies himself as belonging to:</p>
+      <ul>
+        <li>"The left-handed fraternity"</li>
+        <li>"The goatish rather than the sheepish brotherhood"</li>
+        <li>"We of the line of Cain, we who lost our innocence for the second time, we who ate of the horrible tree of knowledge for the second time"</li>
+      </ul>
+      
+      <p>The twice-fallen: Adam fell once; Cain fell again. This double loss of innocence produces a specific capacity—<em>invention</em>.</p>
+      
+      <blockquote>
+        "We were the only early inventors, you know. Genesis 4:20-22 gives only the barest hints of our inventions, but they were the only human inventions in their time."
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+      
+      <div class="layer">
+        <div class="layer-header">
+          <span class="layer-title">Genesis 4:20-22 (Biblical Context)</span>
+          <span class="layer-toggle">▼</span>
+        </div>
+        <div class="layer-content">
+          <div class="note">
+            <div class="note-label">Editorial Note</div>
+            <p>The story mentions "Jabelcain and Jubelcain. And their half-brother Tubalcain" but does not specify their roles. The following identifications come from Genesis, not from the story itself:</p>
+          </div>
+          
+          <p>The referenced verses from Genesis:</p>
+          <ul>
+            <li><strong>Jabal</strong> (Genesis 4:20): "father of those who dwell in tents and have livestock"</li>
+            <li><strong>Jubal</strong> (Genesis 4:21): "father of all those who play the lyre and pipe"</li>
+            <li><strong>Tubal-cain</strong> (Genesis 4:22): "forger of all instruments of bronze and iron"</li>
+          </ul>
+          <p>If Lafferty's Jabelcain, Jubelcain, and Tubalcain correspond to these figures, then the three brothers represent the origins of pastoral life, music, and metallurgy—and all human technology descends from Cain's line. The story's claim that the Cainites "had been working bronze and iron for a full generation" before the Flood aligns with Tubal-cain's identity.</p>
+        </div>
+      </div>
+      
+      <div class="layer">
+        <div class="layer-header">
+          <span class="layer-title">Alternative Flood Survival</span>
+          <span class="layer-toggle">▼</span>
+        </div>
+        <div class="layer-content">
+          <p>Lucius Cockburn objects that he knows a different survival myth:</p>
+          
+          <blockquote>
+            "I have met the myth that either Gog or Magog rode astraddle of the roof-ridge of the ark for the whole trying time of the flood and so prevented the old race of giants from being entirely wiped out. So we have half-giants in the world even now. But that the descendents of Cain escaped Earth in a space-ark, that is new to me. I believe that it's cheating."
+            <cite>— Lucius Cockburn</cite>
+          </blockquote>
+          
+          <p>Tobias's response: "No, not cheating, not cheating at all. To have taken the gamble with the odds a billion to one against, that is not cheating."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">The Cainite Space Ship Paintings</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <p>Tobias paints "strong and grotesque pictures" called the <em>Cainite Space Ship</em> series—"wrenching and a little bit distasteful, but they were also funny."</p>
+      
+      <p>The paintings foreshadow and self-portray. Alwin Garvie notes:</p>
+      
+      <blockquote>
+        "If the units (if there are units in one of those globs) of a reacting molecular group should have faces, I would have to imagine their faces like those of the people or slobs in the 'Cainite Space Ship'. Yourself, of course, have one of those faces, Toby."
+        <cite>— Alwin Garvie</cite>
+      </blockquote>
+      
+      <p>The micro-nation is Cainite; Tobias is Cainite; the paintings depict both. The same grotesque inventive capacity operates at every scale.</p>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">Tyranny and the Space Ship</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <p>When Alwin smells "tyranny in the wee realm," Tobias affirms it:</p>
+      
+      <blockquote>
+        "You smell right, hump-nosed man. The strong impetus of outright tyranny! There is nothing like it for a realm that is at the same time a space ship."
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+      
+      <p>Not political commentary—cosmological structure. A nation that <em>is</em> a space ship requires absolute coordination. Tyranny is the price of survival under impossible conditions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MECHANISM: MYTH AS ACTIVATOR -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<section id="mechanism">
+  <h2>III. Mechanism: Myth as Activator</h2>
+  
+  <p>The insight: <span class="term" data-id="motivation">narrative creates capability in matter</span>. Tobias's colleagues cannot make their reactive jelly react because they do not believe it is alive. Tobias succeeds because he treats the "small chemical smudge" as a nation with destiny.</p>
+  
+  <div class="layer open">
+    <div class="layer-header">
+      <span class="layer-title">The Activation Loop</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      
+      <p>Not a one-way chain but a <em>self-reinforcing loop</em>:</p>
+      
+      <div class="diagram">
+        <svg viewBox="0 0 380 180" width="380" height="180">
+          <style>
+            .node-text { font-family: 'EB Garamond', Georgia, serif; font-size: 10px; text-anchor: middle; }
+            .loop-label { font-family: 'EB Garamond', Georgia, serif; font-size: 8px; font-style: italic; fill: #666; }
+          </style>
+          
+          <!-- Heroic Narrative -->
+          <rect x="20" y="65" width="80" height="50" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+          <text x="60" y="85" class="node-text">Heroic</text>
+          <text x="60" y="98" class="node-text">Narrative</text>
+          
+          <!-- Arrow right -->
+          <line x1="100" y1="90" x2="125" y2="90" stroke="#1a1a1a" stroke-width="1"/>
+          <polygon points="130,90 122,86 122,94" fill="#1a1a1a"/>
+          
+          <!-- Belief -->
+          <rect x="135" y="65" width="70" height="50" fill="#fff" stroke="#1a1a1a" stroke-width="1"/>
+          <text x="170" y="85" class="node-text">Belief</text>
+          <text x="170" y="98" class="node-text">(Motivation)</text>
+          
+          <!-- Arrow right -->
+          <line x1="205" y1="90" x2="230" y2="90" stroke="#1a1a1a" stroke-width="1"/>
+          <polygon points="235,90 227,86 227,94" fill="#1a1a1a"/>
+          
+          <!-- Invention -->
+          <rect x="240" y="65" width="70" height="50" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1"/>
+          <text x="275" y="85" class="node-text" fill="#fff">Invention</text>
+          <text x="275" y="98" class="node-text" fill="#fff">(Action)</text>
+          
+          <!-- Feedback loop -->
+          <path d="M 275 115 L 275 150 L 60 150 L 60 115" fill="none" stroke="#1a1a1a" stroke-width="1" stroke-dasharray="4,2"/>
+          <polygon points="60,115 56,123 64,123" fill="#1a1a1a"/>
+          
+          <!-- Loop label -->
+          <text x="167" y="165" class="loop-label">Invention validates Narrative</text>
+          
+          <!-- Top note -->
+          <text x="190" y="30" text-anchor="middle" class="loop-label">"Whether the little nation did those space marvels or not,</text>
+          <text x="190" y="42" text-anchor="middle" class="loop-label">it is absolutely essential that it believes it did them."</text>
+        </svg>
+        <div class="diagram-caption">Fig. 3. The activation loop: belief creates capability; capability retroactively validates belief.</div>
+      </div>
+      
+      <p>The loop is self-sealing. Once the invention succeeds, it proves the narrative true—or true enough.</p>
+      
+      <blockquote>
+        "Whether the little nation did those space marvels or not, it is absolutely essential that it believes it did them. Its motivation lies in its high history."
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">The Key Principle</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <blockquote>
+        "There is not any such thing as inanimate matter. The smallest subatomic particle is alive and at least partly conscious, and at least partly thinking. If you do not believe this, pretend that you believe it at least. You'll get better results that way."
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+      
+      <p>The operational principle. The colleagues fail because they regard the reactive jelly as a "supersmall glob"—inert, unconscious. Tobias succeeds because he addresses it as "Principality and Nation."</p>
+      
+      <p>The distinction between genuine belief and pragmatic pretense collapses. The results are identical.</p>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">Faerie as Technology</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <p>When Paul Kradzesh accuses Tobias of telling "fairy tales" to the reactive jelly, Tobias responds:</p>
+      
+      <blockquote>
+        "Perhaps you don't understand Faerie at all. When it is finally discovered (which is to say 'When its lair is finally unroofed') it will be found to possess thousands and thousands of annals. Ah, heroic history, primordial inventiveness, ages of greatness!"
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+      
+      <p>Faerie is deep structure, not fantasy. Francie Jack explains:</p>
+      
+      <blockquote>
+        "In the circuit of re-entrant thought and style and mentation, the mythic meets again with the subatomic and the atomic and the molecular on the field of small aeonics."
+        <cite>— Francie Jack</cite>
+      </blockquote>
+      
+      <p>This is why Tobias's <em>New Physics for Middle-School Children</em> was "forced off the market"—"He seemed to be teaching physics by means of a hairy sort of mythology. Even his mathematics was more myth than math." The method was sound; the audience was unprepared.</p>
+      
+      <p>But the book found its audience: "some of those students had a hop on the subject, those who had read Tobias Lamb's <em>New Physics for Middle-School Children</em> and had been enchanted by it."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PARADOX: UNELAPSED TIME -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<section id="paradox">
+  <h2>IV. Paradox: Unelapsed Time</h2>
+  
+  <p>The experiment produces a causality violation: the bullet returns and kills Tobias, yet dead Tobias speaks. This is not a flaw but "a bonus that almost dwarfs the rest of it."</p>
+  
+  <div class="layer open">
+    <div class="layer-header">
+      <span class="layer-title">The Event Sequence</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      
+      <table>
+        <tr>
+          <th>Macro-Time</th>
+          <th>Micro-Time</th>
+          <th>Event</th>
+        </tr>
+        <tr>
+          <td>t = 0</td>
+          <td>Year 0</td>
+          <td>Tobias fires rifle</td>
+        </tr>
+        <tr>
+          <td>t ≈ 2.5s (inside)</td>
+          <td>Years 0–8,000</td>
+          <td>Nation wakes, evolves, invents, decides to return</td>
+        </tr>
+        <tr>
+          <td>t ≈ 2.5s (unelapsed)</td>
+          <td>—</td>
+          <td>Bullet returns; "shot him in the right eye and clear through his head. It killed him too."</td>
+        </tr>
+        <tr>
+          <td>t ≈ 2.5s (unelapsed)</td>
+          <td>—</td>
+          <td>Tobias "dead standing up... so stocky and solid that he did not fall"</td>
+        </tr>
+        <tr>
+          <td>t ≈ 2.5s (unelapsed)</td>
+          <td>—</td>
+          <td>Coroner appears, examines body: "It's a rare happening, and yet I've seen it twice before"</td>
+        </tr>
+        <tr>
+          <td>t ≈ 2.5s (unelapsed)</td>
+          <td>—</td>
+          <td>Dead Tobias speaks: "You lie. Such a thing never happened before."</td>
+        </tr>
+        <tr>
+          <td>t ≈ 2.5s (unelapsed)</td>
+          <td>—</td>
+          <td>Coroner vanishes</td>
+        </tr>
+        <tr>
+          <td>t > 2.5s (elapsed)</td>
+          <td>—</td>
+          <td>Tobias has only a "shiner" (black eye); mockingbird has lost an eye permanently</td>
+        </tr>
+      </table>
+      
+      <p>The coroner's appearance and vanishing illustrates the paradox: "You cannot say properly 'He was here' because there are no tenses in unelapsed time."</p>
+      
+      <div class="asymmetry">
+        <div class="asymmetry-label">Critical Asymmetry</div>
+        <p>Tobias's wound <strong>softens</strong> from lethal (shot through the eye) to cosmetic (a shiner). The mockingbird's wound <strong>persists</strong>: "had lost an eye to the fly-by either coming or going." Unexplained but significant—the human inventor emerges with reduced damage; the animal emblem bears the permanent cost.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">The Nature of Unelapsed Time</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <blockquote>
+        "You really don't understand the possibilities and paradoxes that are present in the context of 'unelapsed time'? It's a property of very small realms and societies. It's a bonus that almost dwarfs the rest of it. Oh, how howlingly valuable it will be to us!"
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+      
+      <p>Key properties:</p>
+      <ul>
+        <li><strong>Tenses do not apply.</strong> Events exist in perpetual present. "He was here" cannot be said because there is no past tense.</li>
+        <li><strong>Valid events coexist.</strong> "Nor will I assure you that my death is an illusion. It is a valid event in unelapsed time, that first remarkable fall-out of the miniature space flight and return."</li>
+        <li><strong>Practical value.</strong> Not a curiosity—it enables instant problem-solving: "Set it any problem and it will solve it."</li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">Tobias's Motives</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <p>When Paul asks "Why did you do such a thing as that?", Tobias answers:</p>
+      
+      <blockquote>
+        "For the joy of discovery, for dramatic affect, for open fun, and to perform a valid experiment."
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+      
+      <div class="note">
+        <div class="note-label">Note</div>
+        <p>"Affect" (not "effect")—emotional display, theatrical impact. The experiment is simultaneously scientific and performative.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- EMBLEM: MOCKERY + FAITH -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<section id="emblem">
+  <h2>V. Emblem: The One-Eyed Mocking-Bird</h2>
+  
+  <p>The title names the symbol. The mockingbird transforms parallel to—but asymmetrical with—Tobias.</p>
+  
+  <div class="layer open">
+    <div class="layer-header">
+      <span class="layer-title">The Required Paradox</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <blockquote>
+        "What we want are mockers who at the same time have total faith. I want that in the director of every project and every public board and government. And I want it in the short-aeon inventive realms and in the miniaturized intelligences that make them up. But deliver us from the mocker who sings too sweetly."
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+      
+      <p>This is the thesis. Two qualities must coexist:</p>
+      <ul>
+        <li><strong>Mockery:</strong> Ironic distance. Refusal to be credulous. The capacity to see through pretense.</li>
+        <li><strong>Total faith:</strong> Complete commitment. The willingness to act as if the myth were true.</li>
+      </ul>
+      
+      <p>The mockingbird before the experiment sings "imperfectly"—"too saccharine to mock." It has sweetness without irony. This is useless.</p>
+      
+      <blockquote>
+        "Damn that mocking-bird! A mocker that will not mock must be changed, or extinguished."
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">The Parallel Transformations</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      
+      <div class="parallel">
+        <div class="parallel-col">
+          <h4>Tobias Lamb</h4>
+          <p><strong>Before:</strong> "A harsh mocker; and yet he had a pleasant strain (or it was meant to be pleasant) in him." The balance is imperfect—his pleasantness is uncertain.</p>
+          <p><strong>Wound:</strong> Shot through right eye and killed (in unelapsed time) → black eye only (in elapsed time)</p>
+          <p><strong>After:</strong> "Still had his big grin, more grotesque than ever, almost more life-like than ever." Speaks in death. Gains access to unelapsed time as resource.</p>
+        </div>
+        <div class="parallel-col">
+          <h4>Mockingbird</h4>
+          <p><strong>Before:</strong> "Singing so imperfectly"—"too saccharine to mock." Has sweetness but lacks authentic mockery.</p>
+          <p><strong>Wound:</strong> "Had lost an eye to the fly-by either coming or going." (Permanent loss.)</p>
+          <p><strong>After:</strong> "A new song that you had to respect whether you liked it or not"—"The inimitable mockery and arrogance of it! And the burning belief!"</p>
+        </div>
+      </div>
+      
+      <div class="asymmetry">
+        <div class="asymmetry-label">The Asymmetry</div>
+        <p>Both are wounded; both are transformed. But Tobias's wound heals (lethal → cosmetic) while the mockingbird's persists (permanent eye loss). The bird pays the full price. Tobias's exclamation—"A one-eyed bird had better be a true believer around here!"—acknowledges this: the permanently wounded creature has no choice but total commitment.</p>
+      </div>
+      
+      <blockquote>
+        "A little discipline in its life was all that bird needed. Aye, get that glob of irony in its song! Mock, bird, mock! And believe at the same time."
+        <cite>— Tobias Lamb</cite>
+      </blockquote>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">The Mascot</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <p>The story closes on the students who inherit the method:</p>
+      
+      <blockquote>
+        "Those brilliant, odd-lot students have their own cultus and fraternity now, and their token and mascot is the One-Eyed Mocking-Bird."
+        <cite>— Narrator</cite>
+      </blockquote>
+      
+      <p>The one-eyed mocking-bird is not a symbol but a <em>program</em>: mockery + faith, instantiated in flesh and feather, adopted by those who will motivate matter with myth.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- CHARACTERS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<section id="characters">
+  <h2>VI. Characters</h2>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">Tobias Lamb</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <p><strong>Role:</strong> Protagonist; scientist; Cainite descendant; harsh mocker with total faith</p>
+      
+      <p><strong>Physical description:</strong> "Physically powerful and exceptionally ugly, loutish and impossible." "So stocky and solid that he did not fall" when killed. His palms make a "clang" rather than a "clap" when he bangs them together.</p>
+      
+      <p><strong>Reputation:</strong> "Held in high esteem by the scientific community" (p. 1); elsewhere "held in puzzled esteem" (p. 3). A cult hero to groups outside his profession—the "rattling rock sort" have made his clanging music into "cult things."</p>
+      
+      <p><strong>Character:</strong> "A harsh mocker; and yet he had a pleasant strain (or it was meant to be pleasant) in him. He was a hard driver. If he didn't actually hold a whip in his hand when he was working on a project, there was always a whip in his voice. He was avid, even feverish, to drive a project to success; and yet he didn't seem at all hungry for personal glory."</p>
+      
+      <p><strong>Works:</strong></p>
+      <ul>
+        <li><em>New Physics for Middle-School Children</em>: "Forced off the market"—"He seemed to be teaching physics by means of a hairy sort of mythology. Even his mathematics was more myth than math." But later students who were "enchanted by it" had "a hop on the subject."</li>
+        <li><em>Not For Everybody Book</em>: "not for everybody"</li>
+        <li>The "Cainite Space Ship" paintings: "strong and grotesque pictures"—"wrenching and a little bit distasteful, but they were also funny"</li>
+        <li>Music on "supposed reproductions of very ancient instruments, according to probably faulty interpretations of ancient musical notations"—"clanging iron 'harps' and howling flutes"</li>
+      </ul>
+      
+      <p><strong>Contra Elton Cabot's dictum:</strong> The "ideal scientist" should be "serene, handsome with inner and outer perfection, into every field of the mind, something of a poet, totally cultured, completely free of hokum, very much of the philosopher, everything of the humanist." Tobias is "into every field of the mind"—"but how clumsily he was into many of those fields!" He lacks serenity, handsomeness, and freedom from hokum.</p>
+      
+      <p><strong>Heritage:</strong> Claims "racial memory" of the Cainite voyage: "I say 'we', for I have a racial memory of it. All of you were born yesterday. I was born several days before yesterday."</p>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">The Colleagues</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Notable</th>
+        </tr>
+        <tr>
+          <td>Francie Jack</td>
+          <td>Colleague; interlocutor</td>
+          <td>"Always made an effort to understand Big Toby"; provides theoretical explanation of "re-entrant thought"; recognizes "it will take a new sort of people to accept it fully"</td>
+        </tr>
+        <tr>
+          <td>Alwin Garvie</td>
+          <td>Colleague</td>
+          <td>Called "hump-nosed man" by Tobias; perceptive about the Cainite parallel and the paintings; smells "tyranny in the wee realm"</td>
+        </tr>
+        <tr>
+          <td>Lucius Cockburn</td>
+          <td>Colleague; skeptic</td>
+          <td>Accuses Tobias of "anthropomorphism"; knows alternative Flood survival myth (Gog/Magog on the ark); declares "We do hate you, Toby"</td>
+        </tr>
+        <tr>
+          <td>Paul Kradzesh</td>
+          <td>Colleague; thief</td>
+          <td>Stole credit for the "Crisley Communicator"; accuses Tobias of telling "fairy tales"; "We do not like you, Tobias!... We do not like you because of tricks like this."</td>
+        </tr>
+        <tr>
+          <td>Viola Rafter</td>
+          <td>Colleague</td>
+          <td>Talks to her house plants "to motivate them"; appreciates Tobias's style: "Is some larger person telling you this to motivate you for something?"</td>
+        </tr>
+      </table>
+      
+      <p>Multiple colleagues express variations of dislike: "We do not like you, Tobias!" (Paul); "We do hate you, Toby" (Lucius). Yet they cannot deny his results.</p>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">The Cainite Pilots</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <p>The three brothers who piloted the Cainite space-ark:</p>
+      <ul>
+        <li><strong>Jabelcain</strong> and <strong>Jubelcain</strong>: "Two brothers"</li>
+        <li><strong>Tubalcain</strong>: "their half-brother"</li>
+      </ul>
+      <p>Total passengers: "A dozen of us shot ourselves off, half accidentally and half on purpose, in a sealed sphere."</p>
+      
+      <p>These are Tobias's ancestors—the "tyrants" who made the impossible voyage work. Alwin calls them such, and Tobias affirms: "The strong impetus of outright tyranny! There is nothing like it for a realm that is at the same time a space ship."</p>
+    </div>
+  </div>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">Other Figures Mentioned</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <ul>
+        <li><strong>Elton Cabot:</strong> Source of the dictum describing the "ideal scientist." Not present in the story; his standards are cited as a foil to Tobias.</li>
+        <li><strong>Creager:</strong> Works "at the 'Evolvate Science Conglomerate'" and "does talk with much success to his reactive molecular jelly"—but Paul doubts he tells "such fairy tales as you tell yours."</li>
+        <li><strong>The Coroner:</strong> Appears in unelapsed time to examine Tobias's body; vanishes when the paradox resolves. His claims to have "seen it twice before" are lies, per Tobias.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- GLOSSARY -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<section id="glossary">
+  <h2>VII. Glossary</h2>
+  <p>Click any <span class="term" data-id="term-example">highlighted term</span> in the text to view its definition, or browse the full glossary below.</p>
+  
+  <div class="layer">
+    <div class="layer-header">
+      <span class="layer-title">View All Terms</span>
+      <span class="layer-toggle">▼</span>
+    </div>
+    <div class="layer-content">
+      <table>
+        <tr>
+          <th>Term</th>
+          <th>Definition</th>
+        </tr>
+        <tr>
+          <td>Cainite</td>
+          <td>Descendant of Cain; member of "the left-handed fraternity" and "goatish rather than sheepish brotherhood." The Cainites are "the only early inventors" because they "ate of the horrible tree of knowledge for the second time." Tobias claims Cainite descent and "racial memory" of the space-ark voyage.</td>
+        </tr>
+        <tr>
+          <td>Crisley Communicator</td>
+          <td>An invention whose credit Paul Kradzesh stole from Tobias. Tobias "didn't react to it at all. Whether credit should redound to him or to another was less than nothing to Toby."</td>
+        </tr>
+        <tr>
+          <td>Mockingbird</td>
+          <td>A bird outside the laboratory that sings "imperfectly" before the experiment—"too saccharine to mock." Loses one eye permanently in the bullet's fly-by; afterward sings with "inimitable mockery and arrogance" and "burning belief." Becomes "the token and mascot" of the students who inherit the method.</td>
+        </tr>
+        <tr>
+          <td>Motivation</td>
+          <td>The act of transmitting heroic narrative to create capability in matter. "You folks talk to the other smudges. I'll talk to this one." The micro-nations must believe they have heroic history; whether they do is secondary.</td>
+        </tr>
+        <tr>
+          <td>Reactive Jelly</td>
+          <td>A molecular syndrome—also called "reacting molecular jelly," "activated molecular syndrome," or dismissively "molecular smudge"—that can be activated into rapid invention if properly motivated. "The 'Reacting Jelly' does react amazingly fast sometimes... and most times it does not react at all."</td>
+        </tr>
+        <tr>
+          <td>Realm</td>
+          <td>Tobias's term for a micro-nation of reactive molecular jelly. "If they are made up of thousands of individuals of a kindred, and if they are able to live, elect, and proclaim a destiny, then they are nations." His colleagues call them "smudges" or "globs."</td>
+        </tr>
+        <tr>
+          <td>Short-Aeon Nation</td>
+          <td>A miniaturized society that experiences time at an accelerated rate. 2.5 seconds of macro-time ≈ 8,000 years of micro-time. "The concept of delay would not be possible to it."</td>
+        </tr>
+        <tr>
+          <td>Small Aeonics</td>
+          <td>The field where "the mythic meets again with the subatomic and the atomic and the molecular"—the "circuit of re-entrant thought and style and mentation" that allows myth to function as physics.</td>
+        </tr>
+        <tr>
+          <td>Tobias Lamb</td>
+          <td>The protagonist. A scientist of Cainite descent, "physically powerful and exceptionally ugly, loutish and impossible," who conducts the experiment in activating reactive molecular jelly through heroic narrative. Ends with a black eye; the mockingbird loses its eye permanently.</td>
+        </tr>
+        <tr>
+          <td>Unelapsed Time</td>
+          <td>A property of very small realms in which events occur without duration from the macro perspective. Tenses do not apply: "You cannot say properly 'He was here.'" Tobias's death is "a valid event in unelapsed time"—not an illusion, but not final in elapsed time. "A bonus that almost dwarfs the rest of it."</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>Study guide prepared for <a href="https://arriveateasterwine.com">arriveateasterwine.com</a></p>
+</footer>
+
+<!-- Popup container -->
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="popup">
+  <div class="popup-header">
+    <div>
+      <div class="popup-category" id="popup-category"></div>
+      <div class="popup-title" id="popup-title"></div>
+    </div>
+    <span class="popup-close" id="popup-close">×</span>
+  </div>
+  <div class="popup-body" id="popup-body"></div>
+</div>
+
+<script>
+// Glossary data
+const glossary = {
+  'tobias': {
+    category: 'Character',
+    title: 'Tobias Lamb',
+    body: `<p>The protagonist. A scientist of Cainite descent who conducts the experiment in activating reactive molecular jelly through heroic narrative.</p>
+    <p><strong>Physical:</strong> "Physically powerful and exceptionally ugly, loutish and impossible." "So stocky and solid that he did not fall." His palms make a "clang" rather than a "clap."</p>
+    <p><strong>Character:</strong> "A harsh mocker; and yet he had a pleasant strain (or it was meant to be pleasant) in him."</p>
+    <p><strong>Works:</strong> <em>New Physics for Middle-School Children</em> (forced off the market, but later students were "enchanted by it"); <em>Not For Everybody Book</em>; the "Cainite Space Ship" paintings.</p>
+    <p><strong>Outcome:</strong> Shot through right eye in unelapsed time; only a "shiner" in elapsed time.</p>`
+  },
+  'realm': {
+    category: 'Concept',
+    title: 'Realm',
+    body: `<p>Tobias's term for a micro-nation of reactive molecular jelly.</p>
+    <blockquote>"If they are made up of thousands of individuals of a kindred, and if they are able to live, elect, and proclaim a destiny, then they are nations."</blockquote>
+    <p>His colleagues call them "smudges" or "globs"—language that prevents activation.</p>`
+  },
+  'jelly': {
+    category: 'Concept',
+    title: 'Reactive Molecular Jelly',
+    body: `<p>A molecular syndrome that can be activated into rapid invention—if properly motivated. Also called "reacting molecular jelly," "activated molecular syndrome," or dismissively, "molecular smudge."</p>
+    <p>"The 'Reacting Jelly' does react amazingly fast sometimes... and most times it does not react at all. We have the package to perform miracles. We have the activator to go into the package. But it performs irregularly and randomly."</p>
+    <p>Creager at the "Evolvate Science Conglomerate" also works with reactive jelly, but Tobias's method—motivation through heroic narrative—produces superior results.</p>`
+  },
+  'short-aeon': {
+    category: 'Concept',
+    title: 'Short-Aeon Nation',
+    body: `<p>A miniaturized society that experiences time at an accelerated rate relative to macro-reality.</p>
+    <p><strong>Time ratio:</strong> ~2.5 seconds macro ≈ ~8,000 years micro</p>
+    <p><strong>Key property:</strong> "The concept of delay would not be possible to it." Speed of cognition and invention scales with miniaturization.</p>
+    <p>The equivalence depends on "the order of size to be considered, direct cubical relations, inverse squares, angular velocity, and the relationship of tight-turning to elapsed time and to the pace of technology development."</p>`
+  },
+  'unelapsed': {
+    category: 'Concept',
+    title: 'Unelapsed Time',
+    body: `<p>A property of very small realms in which events occur without duration from the macro perspective.</p>
+    <p><strong>Key properties:</strong></p>
+    <ul>
+      <li>Tenses do not apply: "You cannot say properly 'He was here'"</li>
+      <li>Events exist in perpetual present</li>
+      <li>Valid events can coexist: Tobias's death is "a valid event in unelapsed time"—not an illusion</li>
+    </ul>
+    <blockquote>"It's a bonus that almost dwarfs the rest of it. Oh, how howlingly valuable it will be to us!"</blockquote>`
+  },
+  'mockingbird': {
+    category: 'Symbol',
+    title: 'The Mockingbird',
+    body: `<p>A bird outside the laboratory—the emblem.</p>
+    <p><strong>Before:</strong> Sings "imperfectly"—"too saccharine to mock." Has sweetness without irony.</p>
+    <p><strong>Wound:</strong> "Had lost an eye to the fly-by either coming or going." (Permanent, unlike Tobias's wound.)</p>
+    <p><strong>After:</strong> "A new song that you had to respect whether you liked it or not"—"inimitable mockery and arrogance" and "burning belief."</p>
+    <p><strong>Legacy:</strong> "Those brilliant, odd-lot students have their own cultus and fraternity now, and their token and mascot is the One-Eyed Mocking-Bird."</p>`
+  },
+  'motivation': {
+    category: 'Concept',
+    title: 'Motivation Through Narrative',
+    body: `<p>The mechanism. Heroic narrative, transmitted to reactive matter, creates the capacity for invention.</p>
+    <blockquote>"There is not any such thing as inanimate matter. The smallest subatomic particle is alive and at least partly conscious, and at least partly thinking. If you do not believe this, pretend that you believe it at least. You'll get better results that way."</blockquote>
+    <p>The colleagues fail because they regard the jelly as inert. Tobias succeeds because he addresses it as "Principality and Nation" and declares: "Your history and your destiny begin right now."</p>
+    <p>The loop is self-sealing: "Whether the little nation did those space marvels or not, it is absolutely essential that it believes it did them. Its motivation lies in its high history."</p>`
+  },
+  'cainite': {
+    category: 'Theology',
+    title: 'Cainite',
+    body: `<p>Descendant of Cain; member of "the left-handed fraternity" and "the goatish rather than the sheepish brotherhood."</p>
+    <p><strong>Key doctrine:</strong> The Cainites "lost our innocence for the second time" and "ate of the horrible tree of knowledge for the second time." This double fall produces the capacity for invention.</p>
+    <blockquote>"We were the only early inventors, you know. Genesis 4:20-22 gives only the barest hints of our inventions, but they were the only human inventions in their time."</blockquote>
+    <p>The Cainite space-ark escaped the Flood via an erupting earth-fault and returned "within the last several hundred years. When invention returned to the Earth, that was the space-ark homing back."</p>`
+  },
+  'cain': {
+    category: 'Theology',
+    title: 'Cain / The Line of Cain',
+    body: `<p>In Genesis, Cain is the first murderer—but also the founder of the first city and the ancestor of all inventors (Genesis 4:17-22).</p>
+    <p>Lafferty's Tobias claims literal Cainite descent and frames the line of Cain as:</p>
+    <ul>
+      <li>"The left-handed fraternity"</li>
+      <li>"The goatish rather than the sheepish brotherhood"</li>
+      <li>Those who "ate of the horrible tree of knowledge for the second time"</li>
+    </ul>
+    <p>The Cainite theological position: invention is the fruit of double fallenness. "There must have been a reason for us."</p>`
+  },
+  'term-example': {
+    category: 'Note',
+    title: 'Glossary Terms',
+    body: `<p>Highlighted terms throughout the text are clickable. Each opens a popup with definition, context, and relevant quotations from the story.</p>`
+  }
+};
+
+// Diagram popup data
+const diagramPopups = {
+  'cainite-theology': {
+    category: 'Theological Source',
+    title: 'Cainite Theology',
+    body: `<p>The Cainites are "the left-handed fraternity," "the goatish rather than the sheepish brotherhood," those who "ate of the horrible tree of knowledge for the second time."</p>
+    <p>Adam fell once; Cain fell again. This double loss of innocence produces the capacity for <em>invention</em>.</p>
+    <blockquote>"We were the only early inventors, you know. Genesis 4:20-22 gives only the barest hints of our inventions, but they were the only human inventions in their time."</blockquote>`
+  },
+  'cainite-voyage': {
+    category: 'Theological Source',
+    title: 'Cainite Voyage',
+    body: `<p>"A dozen of us shot ourselves off, half accidentally and half on purpose, in a sealed sphere" when "the fountains of the deep should burst open."</p>
+    <p>Duration: "a little less than eight thousand years of elapsed time."</p>
+    <p>Task: "to orient ourselves in space, to develop a propulsion power from nothing while traveling at something more than escape velocity in cramped quarters in the dark."</p>
+    <p>Return: "Within the last several hundred years. When invention returned to the Earth, that was the space-ark homing back."</p>`
+  },
+  'bullet-voyage': {
+    category: 'Experiment',
+    title: 'Bullet Voyage',
+    body: `<p>Tobias fires a rifle bullet containing a micro-nation at a cliff 4 kilometers distant.</p>
+    <p>Flight time: ~2.5 seconds macro = ~8,000 years micro.</p>
+    <p>Task: "wake to consciousness, form local governments, expand to a limited universal government, develop science and technology... learn to navigate the bullet, avoid destruction against the cliff; and return it here in quest of their origin."</p>`
+  },
+  'something-larger': {
+    category: 'Narrator Chain',
+    title: 'Something Larger',
+    body: `<blockquote>"Somebody larger tells me such narrations now and then. Yes, to motivate me, I suppose, as I motivate the small molecular smudges."</blockquote>
+    <p>The chain extends upward. Tobias is motivated by "something larger" just as he motivates the micro-nation.</p>`
+  },
+  'tobias': {
+    category: 'Narrator Chain',
+    title: 'Tobias Lamb',
+    body: `<p>The protagonist. A scientist of Cainite descent, "physically powerful and exceptionally ugly, loutish and impossible."</p>
+    <p>He has "racial memory" of the Cainite voyage: "I say 'we', for I have a racial memory of it. All of you were born yesterday. I was born several days before yesterday."</p>
+    <p>He narrates the Cainite myth into the micro-nation as their founding history.</p>`
+  },
+  'transmission': {
+    category: 'Narrator Chain',
+    title: 'The Transmission Moment',
+    body: `<p>Tobias addresses the micro-nation as he seals it into the bullet:</p>
+    <blockquote>"Principality and Nation, in you go! Your history and your destiny begin right now. This is the first instant of your Heroic Age. Be Heroic then, which is the same thing as being inventive."</blockquote>
+    <p>This is the moment myth enters matter—the Cainite voyage becomes the micro-nation's origin story.</p>`
+  },
+  'micro-nation': {
+    category: 'Narrator Chain',
+    title: 'Micro-Nation',
+    body: `<p>The "principality and nation" inside the bullet—thousands of individuals of reactive molecular jelly.</p>
+    <p>Tobias's colleagues call them "smudges" or "globs." Tobias insists: "If they are made up of thousands of individuals of a kindred, and if they are able to live, elect, and proclaim a destiny, then they are nations."</p>`
+  },
+  'unelapsed': {
+    category: 'Paradox',
+    title: 'Unelapsed Time',
+    body: `<p>A property of very small realms. Events occur without duration from the macro perspective.</p>
+    <blockquote>"You really don't understand the possibilities and paradoxes that are present in the context of 'unelapsed time'? It's a property of very small realms and societies. It's a bonus that almost dwarfs the rest of it."</blockquote>
+    <p>Tenses do not apply. Tobias's death is "a valid event in unelapsed time"—not an illusion, but not final either.</p>`
+  },
+  'problem-solving': {
+    category: 'Practical Output',
+    title: 'Instant Problem-Solving',
+    body: `<p>The practical value of unelapsed time:</p>
+    <blockquote>"Set it any problem and it will solve it."</blockquote>
+    <p>The micro-nation becomes "a nation of consummate atomic-speed invention"—the perfect activator for any task.</p>`
+  },
+  'students': {
+    category: 'Narrator Chain',
+    title: 'Odd-Lot Students',
+    body: `<p>The inheritors of the method: "those students who are now developing best ways to motivate and mythologize sub-microscopic smears to get maximum performance and invention from them."</p>
+    <p>They are "an odd lot... working with small, left-handed orders that are more goatish than sheepish, that are very near to the grotesque heart of matter."</p>
+    <p>Their mascot: the One-Eyed Mocking-Bird.</p>`
+  },
+  'activation-loop': {
+    category: 'Mechanism',
+    title: 'Activation Loop',
+    body: `<p>Heroic Narrative → Belief (Motivation) → Invention (Action) → Validates Narrative.</p>
+    <p>The loop is self-sealing:</p>
+    <blockquote>"Whether the little nation did those space marvels or not, it is absolutely essential that it believes it did them. Its motivation lies in its high history."</blockquote>
+    <p>Once invention succeeds, it proves the narrative true—or true enough.</p>`
+  },
+  'mockery-faith': {
+    category: 'Emblem',
+    title: 'Mockery + Faith',
+    body: `<p>The required paradox:</p>
+    <blockquote>"What we want are mockers who at the same time have total faith. I want that in the director of every project and every public board and government. And I want it in the short-aeon inventive realms and in the miniaturized intelligences that make them up. But deliver us from the mocker who sings too sweetly."</blockquote>`
+  },
+  'tobias-transform': {
+    category: 'Transformation',
+    title: "Tobias's Transformation",
+    body: `<p><strong>Before:</strong> "A harsh mocker; and yet he had a pleasant strain (or it was meant to be pleasant) in him."</p>
+    <p><strong>Wound:</strong> Shot through right eye in unelapsed time → only a "shiner" in elapsed time. The wound softens.</p>
+    <p><strong>After:</strong> Speaks in death. "Still had his big grin, more grotesque than ever, almost more life-like than ever."</p>`
+  },
+  'mockingbird-transform': {
+    category: 'Transformation',
+    title: "Mockingbird's Transformation",
+    body: `<p><strong>Before:</strong> "Singing so imperfectly"—"too saccharine to mock." Has sweetness without irony.</p>
+    <p><strong>Wound:</strong> "Had lost an eye to the fly-by either coming or going." The wound persists—permanent loss.</p>
+    <p><strong>After:</strong> "A new song that you had to respect whether you liked it or not"—"inimitable mockery and arrogance" and "burning belief."</p>`
+  },
+  'own-mythology': {
+    category: 'Autonomous Element',
+    title: "Micro-Nations' Own Mythology",
+    body: `<p>The micro-nations are not blank slates. They have their own mythic structures:</p>
+    <blockquote>"They have accumulated and analyzed a frightening amount of dream material from molecular-level and smaller entities, and the dream material in those little worlds is absolutely grotesque. And the mythic configurations can not even be conceived of in the geometry of human myth. They are quite otherwise."</blockquote>
+    <p>Activation awakens something already present.</p>`
+  }
+};
+
+// Layer toggle functionality
+document.querySelectorAll('.layer-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.parentElement.classList.toggle('open');
+  });
+});
+
+// Popup functionality
+const overlay = document.getElementById('overlay');
+const popup = document.getElementById('popup');
+const popupCategory = document.getElementById('popup-category');
+const popupTitle = document.getElementById('popup-title');
+const popupBody = document.getElementById('popup-body');
+const popupClose = document.getElementById('popup-close');
+
+// Glossary term clicks
+document.querySelectorAll('.term').forEach(term => {
+  term.addEventListener('click', (e) => {
+    const id = e.target.dataset.id;
+    if (glossary[id]) {
+      popupCategory.textContent = glossary[id].category;
+      popupTitle.textContent = glossary[id].title;
+      popupBody.innerHTML = glossary[id].body;
+      overlay.classList.add('active');
+      popup.classList.add('active');
+    }
+  });
+});
+
+// Diagram box clicks
+document.querySelectorAll('.clickable').forEach(el => {
+  el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const target = e.currentTarget;
+    const id = target.getAttribute('data-popup');
+    if (diagramPopups[id]) {
+      popupCategory.textContent = diagramPopups[id].category;
+      popupTitle.textContent = diagramPopups[id].title;
+      popupBody.innerHTML = diagramPopups[id].body;
+      overlay.classList.add('active');
+      popup.classList.add('active');
+    }
+  });
+});
+
+function closePopup() {
+  overlay.classList.remove('active');
+  popup.classList.remove('active');
+}
+
+overlay.addEventListener('click', closePopup);
+popupClose.addEventListener('click', closePopup);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closePopup();
+});
+</script>
+
+</body>
+</html>
